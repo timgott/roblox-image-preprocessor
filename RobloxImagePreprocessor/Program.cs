@@ -86,7 +86,7 @@ namespace RobloxImagePreprocessor
             }
             foreach (var file in Directory.GetFiles(path))
             {
-                ProcessImage(path);
+                ProcessImage(file);
             }
         }
 
