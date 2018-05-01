@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="git checkout $(ProjectDir)Test\test.png --ignore-skip-worktree-bits" />
+    <Exec Command="xcopy Test TestOutput /i /s /y" />
   </Target>
 
 </Project>
