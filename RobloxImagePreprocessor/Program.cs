@@ -45,6 +45,12 @@ namespace RobloxImagePreprocessor
                 
         }
 
+        static void Watermark(Stream stream)
+        {
+            var data = System.Text.Encoding.ASCII.GetBytes("Roblox Image Preprocessor");
+            stream.Write(data, 0, data.Length);
+        }
+
         static int Main(string[] args)
         {
             if (args.Length != 1)
@@ -73,6 +79,7 @@ namespace RobloxImagePreprocessor
             using (var stream = new FileStream(path, FileMode.Truncate, FileAccess.Write))
             {
                 image.Save(stream, ImageFormat.Png);
+                Watermark(stream);
             }
             
             return 0;
