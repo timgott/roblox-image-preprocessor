@@ -7,10 +7,6 @@
     <StartupObject />
   </PropertyGroup>
 
-  <ItemGroup>
-    <Folder Include="Test\" />
-  </ItemGroup>
-
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
     <Exec Command="git checkout $(ProjectDir)Test\test.png --ignore-skip-worktree-bits" />
   </Target>

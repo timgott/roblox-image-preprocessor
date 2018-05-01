@@ -2,8 +2,7 @@
   "profiles": {
     "RobloxImagePreprocessor": {
       "commandName": "Project",
-      "commandLineArgs": "test.png",
-      "workingDirectory": "Test"
+      "commandLineArgs": "Test"
     }
   }
 }

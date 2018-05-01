@@ -51,15 +51,9 @@ namespace RobloxImagePreprocessor
             stream.Write(data, 0, data.Length);
         }
 
-        static int Main(string[] args)
+        static void ProcessImage(string path)
         {
-            if (args.Length != 1)
-            {
-                Console.Error.WriteLine("Wrong number of arguments, 1 expected");
-                return 1;
-            }
-
-            string path = args[0];
+            Console.WriteLine($"Processing file \"{path}\"");
             Bitmap image;
             using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read))
             {
@@ -81,7 +75,52 @@ namespace RobloxImagePreprocessor
                 image.Save(stream, ImageFormat.Png);
                 Watermark(stream);
             }
-            
+        }
+
+        static void ProcessDirectory(string path)
+        {
+            Console.WriteLine($"Entering directory \"{path}\"");
+            foreach (var dir in Directory.GetDirectories(path))
+            {
+                ProcessDirectory(dir);
+            }
+            foreach (var file in Directory.GetFiles(path))
+            {
+                ProcessImage(path);
+            }
+        }
+
+        static int Main(string[] args)
+        {
+            if (args.Length == 0)
+            {
+                Console.Error.WriteLine("Wrong number of arguments, at least one file name expected");
+                return 1;
+            }
+
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+
+            foreach (var path in args)
+            {
+                
+                if (File.Exists(path))
+                {
+                    ProcessImage(path);
+                }
+                else if (Directory.Exists(path))
+                {
+                    ProcessDirectory(path);
+                }
+                else
+                {
+                    Console.Error.WriteLine($"Invalid path \"{path}\"");
+                }
+                
+            }
+
+            sw.Stop();
+            Console.WriteLine($"Finished in {sw.ElapsedMilliseconds} ms.");
+
             return 0;
         }
     }
