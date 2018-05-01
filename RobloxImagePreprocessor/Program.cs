@@ -1,15 +1,13 @@
 ﻿using System;
 using System.IO;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
-using SixLabors.ImageSharp.Processing.Processors;
+using System.Drawing;
+using System.Drawing.Imaging;
 
 namespace RobloxImagePreprocessor
 {
     class Program
     {
-        static Rgba32 ProcessTransparentPixel(Image<Rgba32> image, int x, int y)
+        static void ProcessTransparentPixel(Bitmap image, int x, int y)
         {
             int sumR = 0;
             int sumG = 0;
@@ -17,7 +15,7 @@ namespace RobloxImagePreprocessor
             int count = 0;
 
             // Check Neighbors
-            var bounds = image.Bounds();
+            var bounds = new Rectangle(0, 0, image.Width, image.Height);
 
             for (int nx = -1; nx <= 1; nx++)
                 for (int ny = -1; ny <= 1; ny++)
@@ -27,7 +25,7 @@ namespace RobloxImagePreprocessor
                     if (!bounds.Contains(x + nx, y + ny))
                         continue;
 
-                    Rgba32 color = image[x + nx, y + ny];
+                    Color color = image.GetPixel(x + nx, y + ny);
                     if (color.A > 0)
                     {
                         sumR += color.R;
@@ -37,10 +35,14 @@ namespace RobloxImagePreprocessor
                     }
                 }
 
+
+
             if (count > 0)
-                return new Rgba32((byte)(sumR / count), (byte)(sumG / count), (byte)(sumB / count), 0);
-            else
-                return new Rgba32(0, 0, 0, 0);
+            {
+                Color color = Color.FromArgb(0, (byte)(sumR / count), (byte)(sumG / count), (byte)(sumB / count));
+                image.SetPixel(x, y, color);
+            }
+                
         }
 
         static int Main(string[] args)
@@ -52,21 +54,29 @@ namespace RobloxImagePreprocessor
             }
 
             string path = args[0];
-            using (var image = Image.Load<Rgba32>(path))
+            Bitmap image;
+            using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read))
             {
-                for (int x = 0; x < image.Width; x++)
-                    for (int y = 0; y < image.Height; y++)
-                    {
-                        if (image[x, y].A == 0)
-                        {
-                            image[x, y] = ProcessTransparentPixel(image, x, y);
-                        }
-                    }
+                image = new Bitmap(stream);
+            }
 
-                image.Save(path);
+            for (int x = 0; x < image.Width; x++)
+                for (int y = 0; y < image.Height; y++)
+                {
+                    Color color = image.GetPixel(x, y);
+                    if (color.A == 0)
+                    {
+                        ProcessTransparentPixel(image, x, y);
+                    }
+                }
+
+            using (var stream = new FileStream(path, FileMode.Truncate, FileAccess.Write))
+            {
+                image.Save(stream, ImageFormat.Png);
             }
             
             return 0;
         }
     }
 }
+
